@@ -1,6 +1,7 @@
 # getofmynetwork
 
-only python 2
+Notes:
+getofmynetwork only coded for python 2
 interface that supports monitor mode and packet injection needed
 
 
