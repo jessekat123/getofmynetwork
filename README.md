@@ -10,8 +10,11 @@ interface that supports monitor mode and packet injection needed
 
 > cd getofmynetwork/
 
+
 > sudo pip install -r requirements.txt
 
+
 > chmod +x getofmynetwork.py
+
 
 > ./getofmynetwork.py
