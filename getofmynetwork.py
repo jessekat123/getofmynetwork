@@ -93,7 +93,7 @@ def getofmynetwork():
 			
 			print(colored('\n[*]', 'red')),
 			# ask for local subnet
-			askSubnet = raw_input('enter your local subnet for the ARP ping(i.e. 192.168.0.0/16): ')
+			askSubnet = raw_input('enter your local subnet for the ARP ping(e.g. 192.168.0.0/16): ')
 			# a subnet always contains a /
 			if not '/' in askSubnet:
 				print(colored('[!]', 'red')),
