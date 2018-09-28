@@ -1,8 +1,8 @@
-# getofmynetwork
-
-Notes:
-getofmynetwork only coded for python 2
-interface that supports monitor mode and packet injection needed
+Getofmynetwork.py
+Only python2 
+Wireless interface that supports monitor mode and packet injection needed!
+If you have any questions, suggestions or bugs feel free to contact me on instagram: @jesse_040_
+Have fun! 
 
 
 # Installation
@@ -11,11 +11,8 @@ interface that supports monitor mode and packet injection needed
 
 > cd getofmynetwork/
 
-
 > sudo pip install -r requirements.txt
 
-
 > chmod +x getofmynetwork.py
-
 
 > ./getofmynetwork.py
