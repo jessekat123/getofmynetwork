@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 # getoffmynetwork.py 
 # author = Jesse
-# date = 9/22/2018
+# date = 9/28/2018
 
 from scapy.all import *
 from termcolor import colored
 import subprocess
-import socket
 import os
 import sys
 import operator
+import urllib2
+
 
 
 # defining variables 
+
+# for cleaner errors
+sys.tracebacklimit=0
 
 # defining a variable that contains 'ip route' to retrieve your default gateway
 router_ip = subprocess.check_output('ip route', shell=True)
@@ -24,6 +28,45 @@ local_ip = subprocess.check_output('ifconfig | grep inet', shell=True)
 # defining the screen width for later printing
 SCREEN_WIDTH = 110
 centered = operator.methodcaller('center', SCREEN_WIDTH)
+
+
+# functions starting here
+
+
+# function that checks if the user has an internet connection
+def check_connection():
+	try:
+		# open google.com
+	        response=urllib2.urlopen('https://www.google.com/')
+	# if an error occurs, quit
+	except urllib2.URLError as err:
+		# still display the logo even if the user doesnt have a internet connection
+		# clearing the screen
+		subprocess.call('clear',shell=True)
+
+		# printing the logo with figlet
+		print('==============================================================================================================')
+		figlet = subprocess.check_output('figlet -c -f big getofmynetwork -w 100', shell=True)
+		print(colored(figlet, 'red'))
+		print('==============================================================================================================')
+			
+		# lettting user know
+		print(colored('\n[!]', 'red')),
+	    	print('you have to be connected to a network to use getofmynetwork.py!')
+		
+		# time.sleep for the looks
+		time.sleep(0.7)
+
+		print(colored('\n[!]', 'red')),
+		print('exiting...')
+
+		# time.sleep for the looks
+		time.sleep(1)
+	
+		# exiting
+		sys.exit()
+
+check_connection()
 
 
 # check if user is root
@@ -98,6 +141,9 @@ def getofmynetwork():
 			arp_ping = ans,unans=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=askSubnet),timeout=2)
 			# displaying the arp ping output on the screen(IP and MACaddr)
 			arp_ping_output = ans.summary(lambda (s,r): r.sprintf('%ARP.psrc% has %Ether.src%') )
+		
+			# not all at once!
+			time.sleep(1)
 			
 			print(colored('[!]', 'red')),		
 			# prints the users default gateway	
@@ -107,17 +153,33 @@ def getofmynetwork():
 			# prints users local ip
 			print('you are at' + local_ip[12:26])
 
+			time.sleep(1)
 			
 			print(colored('\n[*]', 'red')),
 			# ask interface
 			interface = raw_input('enter interface: ')
+
+			# if 'eth' is in the input from user
+			if 'eth' in interface:
+				print(colored('[-]', 'red')),
+				print('wired network interfaces cannot be put in monitor mode, you need a wireless interface')
+				print(colored('[-]', 'red')),
+				print('exiting...')
+				# exiting
+				sys.exit()
+
+			# sleep for 1 second for the looks
+			time.sleep(1)
+
+	
+		
 
 			
 			# < 3 character interface name?
 			if len(interface) < 3:
 				# we all misspell sometimes :)
 				print(colored('\n[!]', 'red')),
-				interface2 = raw_input('are you sure you entered that right?(r to enter again) ')
+				interface2 = raw_input('are you sure you entered that right?(r to enter again): ')
 				
 				time.sleep(1)
 				
@@ -299,7 +361,7 @@ def getofmynetwork():
 			time.sleep(1)
 
 			# checks if interface is in monitor mode
-			# check if the script went until the assignment of the mon variable,
+			# checks if the script went until the assignment of the mon variable,
 			# if it did, your interface should be set into monitor mode
 			if monInterface[-3:] == 'mon':
 				print(colored('[*]', 'red')),
