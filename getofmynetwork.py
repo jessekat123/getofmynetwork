@@ -13,7 +13,7 @@ try:
 	import time
 	import sys
 	import urllib2
-	import platform
+	
 
 # handling ImportError
 except ImportError:
