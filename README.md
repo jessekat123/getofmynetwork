@@ -11,7 +11,7 @@ Have fun!
 
 # Installation
 
-# Debian Installation
+# Debian-Based-Linux Installation
 
 > cd getofmynetwork/
 
