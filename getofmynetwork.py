@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # getoffmynetwork.py 
 # author = Jesse
-# date = 10/2/2018
+# date = 10/4/2018
 
 
 # try to import the needed modules
@@ -13,7 +13,7 @@ try:
 	import time
 	import sys
 	import urllib2
-	
+
 
 # handling ImportError
 except ImportError:
@@ -26,20 +26,23 @@ except KeyboardInterrupt:
 	print('requested shutdown...')
 	sys.exit()
 
+ 
 
 
-
-# defining variables 
-
-
-# for cleaner errors
+# no traceback for cleaner errors
 sys.tracebacklimit=0
 
-# defining a variable that contains 'ip route' to retrieve your default gateway
+# variable for retrieving your default gateway
 router_ip = subprocess.check_output('ip route', shell=True)
 
-# defining a variable that contains the command 'ifconfig | grep inet'
+# variable for retrieving your local ip
 local_ip = subprocess.check_output('ifconfig | grep inet', shell=True)
+
+
+# make the terminal fullscreen
+resize_terminal = subprocess.check_output("wmctrl -r ':ACTIVE:' -b toggle,fullscreen", shell=True)
+# dont print the ouput of the resize command
+print (resize_terminal[0:0])
 
 
 
@@ -47,13 +50,14 @@ local_ip = subprocess.check_output('ifconfig | grep inet', shell=True)
 
 def exit():
 	try:
-		# requested shutdown :(
+		
 		print(colored('\n\n[-]', 'red')),
 		print('requested shutdown\n')
 
+
 		time.sleep(1)
 
-		# checks if iface is in monitor mode
+
 		# checks if the script went until the assignment of the mon variable,
 		# if it did, your iface should be set into monitor mode
 		if monInterface[-3:] == 'mon':
@@ -68,10 +72,18 @@ def exit():
 
 			time.sleep(0.5)
 				
+
 			print(colored('[*]', 'red')),
 			print('done!')
+
+			# resize the terminal
+			resize_terminal = subprocess.check_output("wmctrl -r ':ACTIVE:' -b toggle,fullscreen", shell=True)
+			# dont print the ouput of the resize command
+			print (resize_terminal[0:0])
+
 			# exit this script
 			sys.exit()
+
 
 	# a NameError would occur if you exit before you assign all variables, this hides this error
 	except NameError:
@@ -79,14 +91,14 @@ def exit():
 
 	
 
-# function that checks if the user has an internet connection
+# function that checks users internet connection
 def check_connection():
 
 	try:
 		# open google.com
 	    response=urllib2.urlopen('https://www.google.com/')
 
-	# if an error occurs, quit
+	# if an error occurs when trying to open google.com, quit
 	except urllib2.URLError:
 		# still display the logo even if the user doesnt have a internet connection
 		# clearing the screen
@@ -399,11 +411,7 @@ def getofmynetwork():
 										print(colored('[+]', 'red')),
 										print('monitor mode on ' + iface + ' has been set up!')
 
-										
 
-											
-										# iface name when in monitor mode
-										monInterface = iface+'mon'
 										
 										time.sleep(1)
 							
@@ -438,13 +446,13 @@ def getofmynetwork():
 										time.sleep(0.5)
 
 										# checks if interface is in monitor mode
-										# check if the script went until the assignment of the monInterface variable,
+										# check if the script went until the assignment of the conf.iface variable,
 										# it probably did but its never a bad idea to still check
-										if monInterface[-3:] == 'mon':
+										if conf.iface[-3:] == 'mon':
 											print(colored('\n[*]', 'red')),
-											print('stopping monitor mode on ' + monInterface)
+											print('stopping monitor mode on ' + conf.iface)
 											# stopping monitor mode on interface
-											stop_mon_mode = subprocess.check_output('airmon-ng stop ' + monInterface, shell=True)
+											stop_mon_mode = subprocess.check_output('airmon-ng stop ' + conf.iface, shell=True)
 									
 											# hide the stop_mon_mode output to keep the shell clean			
 											print(stop_mon_mode[0:0])
@@ -454,7 +462,12 @@ def getofmynetwork():
 											print(colored('[+]', 'red')),
 											print('done!\n')
 							
-											# dont forget to break the loop if the user makes it until the end!
+											# stop fullscreen terminal
+											resize_terminal = subprocess.check_output("wmctrl -r ':ACTIVE:' -b toggle,fullscreen", shell=True)
+											# dont print the ouput of the resize command
+											print (resize_terminal[0:0])
+
+											# breaking the loop
 											break
 
 
@@ -465,7 +478,7 @@ def getofmynetwork():
 
 
 
-	# exception for IOErrors
+	# exception for IOError
 	except IOError:
 		print(colored('\n[-]', 'red')),
 		print('interface does not support monitor mode or is not available')
