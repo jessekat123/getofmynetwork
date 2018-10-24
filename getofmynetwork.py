@@ -46,7 +46,6 @@ print (resize_terminal[0:0])
 
 
 
-# functions starting here
 
 def exit():
 	try:
