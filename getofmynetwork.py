@@ -41,7 +41,7 @@ local_ip = subprocess.check_output('ifconfig | grep inet', shell=True)
 
 # make the terminal fullscreen
 resize_terminal = subprocess.check_output("wmctrl -r ':ACTIVE:' -b toggle,fullscreen", shell=True)
-# dont print the ouput of the resize command
+# dont print the output of the resize command
 print (resize_terminal[0:0])
 
 
@@ -94,7 +94,7 @@ def exit():
 def check_connection():
 
 	try:
-		# open google.com
+	    # open google.com
 	    response=urllib2.urlopen('https://www.google.com/')
 
 	# if an error occurs when trying to open google.com, quit
@@ -170,7 +170,7 @@ def arp_ping():
 			# ask for local subnet
 			askSubnet = raw_input('enter your local subnet for the ARP ping(e.g. 192.168.0.0/16): ')
 			# a subnet always contains a /
-			# or user just wants to scan a single host but thats probably not the case
+			# or user just wants to scan a single host but thats probably not the case and if it is you can change it down here!
 			if not '/' in askSubnet:
 				print(colored('[!]', 'red')),
 				print('please enter a valid subnet')
@@ -203,7 +203,7 @@ def arp_ping():
 			else:
 
 				print(colored('\n[*]', 'red')),
-				# letting the user know the arp ping is running
+				
 				print('ARP ping is running...\n')
 					
 				# performing the arp ping on the whole subnet with scapy			
@@ -211,8 +211,7 @@ def arp_ping():
 
 				# displaying the arp ping output on the screen(IP and MACaddr)
 				arp_ping_output = ans.summary(lambda (s,r): r.sprintf('%ARP.psrc% has %Ether.src%') )
-
-				# not all at once!
+				
 				time.sleep(1)
 							
 				print(colored('[!]', 'red')),		
@@ -284,7 +283,7 @@ def getofmynetwork():
 
 				# starting a new while loop inside the other while loop so the variables are defined in the other while loops
 				while True:
-					# sleep for the looks
+					
 					time.sleep(0.5)
 
 					print(colored('\n[*]', 'red')),	
