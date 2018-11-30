@@ -4,7 +4,7 @@ Only python2
 
 Wireless interface that supports monitor mode and packet injection needed!
 
-If you have any questions, suggestions or bugs feel free to contact me on instagram: @jk.040
+If you have any questions, suggestions or bugs feel free to contact me on snapchat: jk.040
 
 Have fun! 
 
