@@ -13,6 +13,8 @@ Have fun!
 
 # Debian Installation
 
+> git clone https://github.com/User440778/getofmynetwork.git
+
 > cd getofmynetwork/
 
 > sudo pip install -r requirements.txt
