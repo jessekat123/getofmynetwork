@@ -17,8 +17,8 @@ Have fun!
 
 > sudo pip install -r requirements.txt
 
-> apt-get install wmctrl
+> sudo apt-get install wmctrl
 
 > chmod +x getofmynetwork.py
 
-> ./getofmynetwork.py
+> sudo ./getofmynetwork.py
