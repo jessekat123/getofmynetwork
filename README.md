@@ -19,6 +19,8 @@ Have fun!
 
 > sudo pip install -r requirements.txt
 
+> sudo apt-get install figlet
+
 > chmod +x getofmynetwork.py
 
 > sudo ./getofmynetwork.py
