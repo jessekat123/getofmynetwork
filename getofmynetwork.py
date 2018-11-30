@@ -95,7 +95,7 @@ def exit():
 def check_connection():
 
 	try:
-	    # open google.com
+	    # try to open google.com
 	    response=urllib2.urlopen('https://www.google.com/')
 
 	# if an error occurs when trying to open google.com, quit
