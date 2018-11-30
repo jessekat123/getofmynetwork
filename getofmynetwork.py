@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # getoffmynetwork.py 
 # author = Jesse
-# date = 10/4/2018
+# date = 4/10/2018
 
+# NOTE: Yes the code contains many comments, that's because i'm sharing this with beginner python programmers
 
 # try to import the needed modules
 try:
@@ -314,11 +315,8 @@ def getofmynetwork():
 					# then the input is valid so we can break the loop and move on
 					else:
 						
-						# another while loop...
 						while True:
 
-
-							# sleep before asking
 							time.sleep(1)
 
 							print(colored('\n[*]', 'red')),			
@@ -348,10 +346,10 @@ def getofmynetwork():
 								# keep going until a valid mac address has been entered
 								continue
 							
-							# then the input is valid so we can go on 
+
 							else:
 						
-								# and another one
+							
 								while True:
 
 									# asking amount of deauth packets
@@ -373,7 +371,6 @@ def getofmynetwork():
 
 										time.sleep(0.5)
 
-										# keep printing the above until input is valid
 										continue 
 		
 								
