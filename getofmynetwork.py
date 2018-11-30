@@ -175,9 +175,8 @@ def arp_ping():
 				# keep printing until a valid subnet is entered
 				continue
 
-						
-			# minimum length of a subnet is something like 10 ^^
-			if len(askSubnet) < 10:
+		
+			if len(askSubnet) < 8:
 				print(colored('[!]', 'red')),
 				print('please enter a valid subnet')
 				
@@ -186,7 +185,7 @@ def arp_ping():
 				# keep printing until a valid subnet is entered
 				continue
 
-			if len(askSubnet) > 15:
+			if len(askSubnet) > 16:
 				print(colored('[!]', 'red')),
 				print('please enter a valid subnet')
 				
