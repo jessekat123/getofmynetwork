@@ -40,12 +40,6 @@ router_ip = subprocess.check_output('ip route', shell=True)
 local_ip = subprocess.check_output('ifconfig | grep inet', shell=True)
 
 
-# make the terminal fullscreen
-resize_terminal = subprocess.check_output("wmctrl -r ':ACTIVE:' -b toggle,fullscreen", shell=True)
-# dont print the output of the resize command
-print (resize_terminal[0:0])
-
-
 
 
 def exit():
@@ -266,7 +260,7 @@ def getofmynetwork():
 				# sleep for a short time
 				time.sleep(0.3)
 				print(colored('[!]', 'red')),
-				print('make sure your interface can be put into monitor mode and supports packet injection!')
+				print('make sure your interface supports monitor mode and packet injection!')
 
 				
 			# make sure the user enters the non-monitor mode iface name to prevent later errors
@@ -456,11 +450,6 @@ def getofmynetwork():
 												
 											print(colored('[+]', 'red')),
 											print('done!\n')
-							
-											# stop fullscreen terminal
-											resize_terminal = subprocess.check_output("wmctrl -r ':ACTIVE:' -b toggle,fullscreen", shell=True)
-											# dont print the ouput of the resize command
-											print (resize_terminal[0:0])
 
 											# breaking the loop
 											break
